@@ -26,32 +26,37 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-echo "Find hosted zone id for $hosted_zone_domain..."
-hosted_zone_id=$(aws route53 list-hosted-zones | jq -c --arg domain "$hosted_zone_domain"  '.HostedZones[] | select(.Name == $domain)' | jq -r '.Id' | cut -d"/" -f3)
+function upsert_a_record() {
 
-echo "Hosted zone id for $hosted_zone_domain is: $hosted_zone_id"
+  echo "Find hosted zone id for $hosted_zone_domain ..."
+  hosted_zone_id=$(aws route53 list-hosted-zones | jq -c --arg domain "$1"  '.HostedZones[] | select(.Name == $domain)' | jq -r '.Id' | cut -d"/" -f3)
 
-echo "Create a record with type $record_type for the sub domain $sub_domain with value $value ..."
+  echo "Hosted zone id for $1 is: $hosted_zone_id"
 
-aws route53 change-resource-record-sets \
-  --hosted-zone-id "$hosted_zone_id" \
-  --change-batch '
-  {
-    "Comment": "Testing creating a record set"
-    ,"Changes": [{
-      "Action"              : "UPSERT"
-      ,"ResourceRecordSet"  : {
-        "Name"              : "'"$sub_domain"'"
-        ,"Type"             : "'"$record_type"'"
-        ,"TTL"              : 120
-        ,"ResourceRecords"  : [{
-            "Value"         : "'"$value"'"
-        }]
-      }
-    }]
-  }
-  '
+  echo "Create a record with type $record_type for the sub domain $sub_domain with value $value ..."
 
-echo "Done!"
+  aws route53 change-resource-record-sets \
+    --hosted-zone-id "$hosted_zone_id" \
+    --change-batch '
+    {
+      "Comment": "Testing creating a record set"
+      ,"Changes": [{
+        "Action"              : "UPSERT"
+        ,"ResourceRecordSet"  : {
+          "Name"              : "'"$2"'"
+          ,"Type"             : "'"$3"'"
+          ,"TTL"              : 120
+          ,"ResourceRecords"  : [{
+              "Value"         : "'"$4"'"
+          }]
+        }
+      }]
+    }
+    '
 
-#TODO: Testing the new record using tool like dig, ...
+  echo "Done!"
+
+  #TODO: Testing the new record using tool like dig, ...
+}
+
+upsert_a_record "$hosted_zone_domain" "$sub_domain" "$record_type" "$value" 

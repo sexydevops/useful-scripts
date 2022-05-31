@@ -35,7 +35,6 @@ output_txt_file_dns_record="./data-tmp-dns-record.txt"
 echo > "$output_txt_file_dns_record"
 
 
-echo "$cert_desc" > "$output_json_file_cert_desc"
 read Name Type Value < <(echo $(echo "$cert_desc" | jq -r '.Certificate.DomainValidationOptions[] | .ResourceRecord | .Name, .Type, .Value'))
 
 echo "$Name"  >> "$output_txt_file_dns_record"

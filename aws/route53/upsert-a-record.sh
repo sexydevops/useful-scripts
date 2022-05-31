@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 
 export AWS_PAGER=""
@@ -34,27 +33,24 @@ echo "Hosted zone id for $hosted_zone_domain is: $hosted_zone_id"
 
 echo "Create a record with type $record_type for the sub domain $sub_domain with value $value ..."
 
-aws route53 change-resource-record-sets --hosted-zone-id "$hosted_zone_id"  --change-batch file://<(cat << EOF
-{
-  "Comment": "Testing creating a record set",
-  "Changes": [
-    {
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "$sub_domain",
-        "Type": "$record_type",
-        "TTL": 120,
-        "ResourceRecords": [
-          {
-            "Value": "$value"
-          }
-        ]
+aws route53 change-resource-record-sets \
+  --hosted-zone-id "$hosted_zone_id" \
+  --change-batch '
+  {
+    "Comment": "Testing creating a record set"
+    ,"Changes": [{
+      "Action"              : "UPSERT"
+      ,"ResourceRecordSet"  : {
+        "Name"              : "'"$sub_domain"'"
+        ,"Type"             : "'"$record_type"'"
+        ,"TTL"              : 120
+        ,"ResourceRecords"  : [{
+            "Value"         : "'"$value"'"
+        }]
       }
-    }
-  ]
-}
-EOF
-)
+    }]
+  }
+  '
 
 echo "Done!"
 

@@ -29,7 +29,7 @@ done
 function upsert_a_record() {
 
   echo "Find hosted zone id for $hosted_zone_domain ..."
-  hosted_zone_id=$(aws route53 list-hosted-zones | jq -c --arg domain "$1"  '.HostedZones[] | select(.Name == $domain)' | jq -r '.Id' | cut -d"/" -f3)
+  hosted_zone_id=$(aws route53 list-hosted-zones | jq -c --arg domain "$1."  '.HostedZones[] | select(.Name == $domain)' | jq -r '.Id' | cut -d"/" -f3)
 
   echo "Hosted zone id for $1 is: $hosted_zone_id"
 
